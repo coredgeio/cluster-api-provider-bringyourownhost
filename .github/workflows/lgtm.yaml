@@ -12,5 +12,5 @@ jobs:
       - uses: jpmcb/prow-github-actions@v1.1.3
         with:
           jobs: 'lgtm'
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          github-token: "${{ secrets.COREDGE_GIT_CLONE_TOKEN }}"
           merge-method: 'squash'
