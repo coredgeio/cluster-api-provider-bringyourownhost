@@ -1,0 +1,35 @@
+name: Release BYOH controller
+
+on:
+  push:
+    # Build and publish artifacts when new tag is created for release
+    tags:
+      - "v*.*.*"
+
+
+jobs:
+  build-and-publish-byoh-controller:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Login to Docker Hub
+      env:
+        DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
+        DOCKER_PWD: ${{secrets.DOCKERHUB_USER}}
+      run: docker login -u $DOCKER_USER -p $DOCKER_PWD
+    
+    - name: pre-cleanup the docker
+      run: sudo docker system prune -a -f && sudo docker buildx prune
+    
+    - name: build and push controller image
+      env:
+        REPO: ${{ github.repository_owner }}
+        TAG: ${{ github.ref_name }}
+      run: |
+        IMG=$REPO/cluster-api-byoh-controller:$TAG make docker-build
+        docker push $REPO/cluster-api-byoh-controller:$TAG
+
+
+
