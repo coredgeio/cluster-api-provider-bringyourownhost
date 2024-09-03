@@ -1,11 +1,10 @@
-name: Build and Publish BYOH Bundle
+name: Release k8s BYOH Bundles
 
 on:
-  release:
-    types: [published]
   push:
+    # Build and publish artifacts when new tag is created for release
     tags:
-      - '*'
+      - "v*.*.*"
 
 jobs:
   build-and-publish-k8s-bundles:
@@ -17,8 +16,8 @@ jobs:
     - name: Login to Docker Hub
       env:
         DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
-        DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
-      run: sudo docker login -u $DOCKER_USER -p $DOCKER_PWD
+        DOCKER_PWD: ${{secrets.DOCKERHUB_USER}}
+      run: docker login -u $DOCKER_USER -p $DOCKER_PWD
     
     - name: pre-cleanup the docker
       run: sudo docker system prune -a -f && sudo docker buildx prune
@@ -41,10 +40,12 @@ jobs:
     - name: Build and Publish BYOH Bundle
       env:
         BUILD_ONLY: 0
-        REPO: coredgeio
-        BUNDLE_NAME: ${{ github.ref_name }}
+        REPO: ${{ github.repository_owner }}
+        BUNDLE_NAME: byoh-bundle-ubuntu_20.04.1_x86-64_k8s
+        TAG: v1.31.0
       run: |
-        docker run --rm -v ${{ github.workspace }}/byoh-ingredients-download:/ingredients --env BUILD_ONLY=${{ env.BUILD_ONLY }} byoh-build-push-bundle ${REPO}/${BUNDLE_NAME}
+        docker run --rm -v ~/.docker/config.json:/root/.docker/config.json -v ${{ github.workspace }}/byoh-ingredients-download:/ingredients --env BUILD_ONLY=${{ env.BUILD_ONLY }} byoh-build-push-bundle $REPO/$BUNDLE_NAME:$TAG
 
     - name: Cleanup Docker
       run: sudo docker logout && sudo docker system prune -a -f && sudo docker buildx prune
+

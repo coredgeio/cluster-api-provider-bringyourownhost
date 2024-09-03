@@ -19,13 +19,13 @@ import (
 // ByoHostValidator validates ByoHosts
 type ByoHostValidator struct {
 	//	Client  client.Client
-	decoder *admission.Decoder
+	decoder admission.Decoder
 }
 
 // To allow byoh manager service account to patch ByoHost CR
 const managerServiceAccount = "system:serviceaccount:byoh-system:byoh-controller-manager"
 
-//nolint: gocritic
+// nolint: gocritic
 // Handle handles all the requests for ByoHost resource
 func (v *ByoHostValidator) Handle(ctx context.Context, req admission.Request) admission.Response {
 	var response admission.Response
@@ -75,7 +75,7 @@ func (v *ByoHostValidator) handleDelete(req *admission.Request) admission.Respon
 }
 
 // InjectDecoder injects the decoder.
-func (v *ByoHostValidator) InjectDecoder(d *admission.Decoder) error {
+func (v *ByoHostValidator) InjectDecoder(d admission.Decoder) error {
 	v.decoder = d
 	return nil
 }

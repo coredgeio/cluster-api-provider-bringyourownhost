@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	. "github.com/onsi/ginkgo/v2"
@@ -164,7 +163,7 @@ var _ = Describe("When testing MachineDeployment scale out/in", func() {
 				err := dockerClient.ContainerStop(ctx, byohostContainerID, container.StopOptions{})
 				Expect(err).NotTo(HaveOccurred())
 
-				err = dockerClient.ContainerRemove(ctx, byohostContainerID, types.ContainerRemoveOptions{})
+				err = dockerClient.ContainerRemove(ctx, byohostContainerID, container.RemoveOptions{})
 				Expect(err).NotTo(HaveOccurred())
 			}
 

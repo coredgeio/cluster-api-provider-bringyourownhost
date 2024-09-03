@@ -4,7 +4,7 @@ package cloudinitfakes
 import (
 	"sync"
 
-	"github.com/vmware-tanzu/cluster-api-provider-bringyourownhost/agent/cloudinit"
+	"github.com/coredgeio/cluster-api-provider-bringyourownhost/agent/cloudinit"
 )
 
 type FakeITemplateParser struct {

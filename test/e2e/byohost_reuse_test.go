@@ -10,12 +10,12 @@ import (
 	"os"
 	"path/filepath"
 
+	infrastructurev1beta1 "github.com/coredgeio/cluster-api-provider-bringyourownhost/apis/infrastructure/v1beta1"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	infrastructurev1beta1 "github.com/vmware-tanzu/cluster-api-provider-bringyourownhost/apis/infrastructure/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/pointer"
@@ -207,7 +207,7 @@ var _ = Describe("When BYO Host rejoins the capacity pool", func() {
 				err := getDockerClient().ContainerStop(ctx, byohostContainerID, container.StopOptions{})
 				Expect(err).NotTo(HaveOccurred())
 
-				err = getDockerClient().ContainerRemove(ctx, byohostContainerID, types.ContainerRemoveOptions{})
+				err = getDockerClient().ContainerRemove(ctx, byohostContainerID, container.RemoveOptions{})
 				Expect(err).NotTo(HaveOccurred())
 			}
 		}

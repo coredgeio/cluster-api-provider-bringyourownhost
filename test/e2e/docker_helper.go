@@ -176,7 +176,7 @@ func (r *ByoHostRunner) createDockerContainer() (container.CreateResponse, error
 		nil, r.ByoHostName)
 }
 
-func (r *ByoHostRunner) copyKubeconfig(config cpConfig, listopt types.ContainerListOptions) error {
+func (r *ByoHostRunner) copyKubeconfig(config cpConfig, listopt container.ListOptions) error {
 	var kubeconfig []byte
 	if r.NetworkInterface == "host" {
 		listopt.Filters.Add("name", r.ByoHostName)
@@ -260,7 +260,7 @@ func (r *ByoHostRunner) SetupByoDockerHost() (*container.CreateResponse, error) 
 	byohost, err = r.createDockerContainer()
 
 	Expect(err).NotTo(HaveOccurred())
-	Expect(r.DockerClient.ContainerStart(r.Context, byohost.ID, types.ContainerStartOptions{})).NotTo(HaveOccurred())
+	Expect(r.DockerClient.ContainerStart(r.Context, byohost.ID, container.StartOptions{})).NotTo(HaveOccurred())
 
 	config := cpConfig{
 		sourcePath: r.PathToHostAgentBinary,
@@ -269,7 +269,7 @@ func (r *ByoHostRunner) SetupByoDockerHost() (*container.CreateResponse, error) 
 	}
 	Expect(copyToContainer(r.Context, r.DockerClient, config)).NotTo(HaveOccurred())
 
-	listopt := types.ContainerListOptions{}
+	listopt := container.ListOptions{}
 	listopt.Filters = filters.NewArgs()
 
 	err = r.copyKubeconfig(config, listopt)

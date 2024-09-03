@@ -165,7 +165,7 @@ kind: ByoCluster
 metadata:
   name: ${CLUSTER_NAME}
 spec:
-  bundleLookupBaseRegistry: coredge
+  bundleLookupBaseRegistry: coredgeio
   controlPlaneEndpoint:
     host: ${CONTROL_PLANE_ENDPOINT_IP}
     port: 6443
@@ -203,7 +203,7 @@ metadata:
 spec:
   template:
     spec:
-      bundleRepo: coredge
+      bundleRepo: coredgeio
       bundleType: k8s
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -213,5 +213,5 @@ metadata:
 spec:
   template:
     spec:
-      bundleRepo: coredge
+      bundleRepo: coredgeio
       bundleType: k8s

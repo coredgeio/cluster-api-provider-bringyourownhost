@@ -12,14 +12,13 @@ import (
 	"testing"
 	"time"
 
-	dockertypes "github.com/docker/docker/api/types"
+	infrastructurev1beta1 "github.com/coredgeio/cluster-api-provider-bringyourownhost/apis/infrastructure/v1beta1"
+	"github.com/coredgeio/cluster-api-provider-bringyourownhost/test/e2e"
 	"github.com/docker/docker/api/types/container"
 	dClient "github.com/docker/docker/client"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
-	infrastructurev1beta1 "github.com/vmware-tanzu/cluster-api-provider-bringyourownhost/apis/infrastructure/v1beta1"
-	"github.com/vmware-tanzu/cluster-api-provider-bringyourownhost/test/e2e"
 	certv1 "k8s.io/api/certificates/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -103,7 +102,7 @@ var _ = BeforeSuite(func() {
 	dockerClient, err = dClient.NewClientWithOpts(dClient.FromEnv, dClient.WithAPIVersionNegotiation())
 	Expect(err).NotTo(HaveOccurred())
 
-	pathToHostAgentBinary, err = gexec.Build("github.com/vmware-tanzu/cluster-api-provider-bringyourownhost/agent")
+	pathToHostAgentBinary, err = gexec.Build("github.com/coredgeio/cluster-api-provider-bringyourownhost/agent")
 	Expect(err).NotTo(HaveOccurred())
 
 	writeKubeConfig()
@@ -163,7 +162,7 @@ func cleanup(ctx context.Context, byoHostContainer *container.CreateResponse, na
 	err := dockerClient.ContainerStop(ctx, byoHostContainer.ID, container.StopOptions{})
 	Expect(err).NotTo(HaveOccurred())
 
-	err = dockerClient.ContainerRemove(ctx, byoHostContainer.ID, dockertypes.ContainerRemoveOptions{})
+	err = dockerClient.ContainerRemove(ctx, byoHostContainer.ID, container.RemoveOptions{})
 	Expect(err).NotTo(HaveOccurred())
 
 	err = k8sClient.Delete(ctx, namespace)
