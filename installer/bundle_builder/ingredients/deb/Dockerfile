@@ -11,13 +11,13 @@
 ARG BASE_IMAGE=ubuntu:20.04
 FROM $BASE_IMAGE as build
 
-# Override to download other version
-ENV CONTAINERD_VERSION=1.6.26
-ENV KUBERNETES_VERSION=1.26.6-00
-ENV ARCH=amd64
-
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends sudo
+
+# Override to download other version
+ENV CONTAINERD_VERSION=1.7.21
+ENV KUBERNETES_VERSION=1.31.0-1.1
+ENV ARCH=amd64
 
 WORKDIR /bundle-builder
 COPY download.sh .
