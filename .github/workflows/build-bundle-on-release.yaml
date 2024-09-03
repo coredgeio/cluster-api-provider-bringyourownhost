@@ -1,0 +1,50 @@
+name: Build and Publish BYOH Bundle
+
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-and-publish-k8s-bundles:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Login to Docker Hub
+      env:
+        DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
+        DOCKER_PWD: ${{secrets.DOCKERHUB_PUSH_TOKEN}}
+      run: sudo docker login -u $DOCKER_USER -p $DOCKER_PWD
+    
+    - name: pre-cleanup the docker
+      run: sudo docker system prune -a -f && sudo docker buildx prune
+
+    - name: Build BYOH Ingredients Docker image
+      run: |
+        cd installer/bundle_builder/ingredients/deb/
+        docker build -t byoh-ingredients-deb .
+
+    - name: Create BYOH Ingredients directory and download files
+      run: |
+        mkdir -p byoh-ingredients-download
+        docker run --rm -v ${{ github.workspace }}/byoh-ingredients-download:/ingredients byoh-ingredients-deb
+
+    - name: Build BYOH Bundle Docker image
+      run: |
+        cd installer/bundle_builder/
+        docker build -t byoh-build-push-bundle .
+
+    - name: Build and Publish BYOH Bundle
+      env:
+        BUILD_ONLY: 0
+        REPO: coredgeio
+        BUNDLE_NAME: ${{ github.ref_name }}
+      run: |
+        docker run --rm -v ${{ github.workspace }}/byoh-ingredients-download:/ingredients --env BUILD_ONLY=${{ env.BUILD_ONLY }} byoh-build-push-bundle ${REPO}/${BUNDLE_NAME}
+
+    - name: Cleanup Docker
+      run: sudo docker logout && sudo docker system prune -a -f && sudo docker buildx prune
