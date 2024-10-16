@@ -7,11 +7,11 @@ import (
 	"context"
 	"fmt"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	infrav1 "github.com/coredgeio/cluster-api-provider-bringyourownhost/apis/infrastructure/v1beta1"
 	"github.com/coredgeio/cluster-api-provider-bringyourownhost/test/builder"
 	eventutils "github.com/coredgeio/cluster-api-provider-bringyourownhost/test/utils/events"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -433,7 +433,7 @@ var _ = Describe("Controllers/K8sInstallerConfigController", func() {
 
 	Context("ByoMachine to K8sInstallerConfig reconcile request", func() {
 		It("should not return reconcile request if ByoMachine InstallerRef doesn't exists", func() {
-			result := k8sInstallerConfigReconciler.ByoMachineToK8sInstallerConfigMapFunc(byoMachine)
+			result := k8sInstallerConfigReconciler.ByoMachineToK8sInstallerConfigMapFunc(ctx, byoMachine)
 			Expect(len(result)).To(BeZero())
 		})
 
@@ -450,7 +450,7 @@ var _ = Describe("Controllers/K8sInstallerConfigController", func() {
 				return object.(*infrav1.ByoMachine).Spec.InstallerRef != nil
 			})
 
-			result := k8sInstallerConfigReconciler.ByoMachineToK8sInstallerConfigMapFunc(byoMachine)
+			result := k8sInstallerConfigReconciler.ByoMachineToK8sInstallerConfigMapFunc(ctx, byoMachine)
 			Expect(len(result)).To(BeZero())
 		})
 
@@ -468,7 +468,7 @@ var _ = Describe("Controllers/K8sInstallerConfigController", func() {
 				return object.(*infrav1.ByoMachine).Spec.InstallerRef != nil
 			})
 
-			result := k8sInstallerConfigReconciler.ByoMachineToK8sInstallerConfigMapFunc(byoMachine)
+			result := k8sInstallerConfigReconciler.ByoMachineToK8sInstallerConfigMapFunc(ctx, byoMachine)
 			Expect(len(result)).NotTo(BeZero())
 		})
 	})

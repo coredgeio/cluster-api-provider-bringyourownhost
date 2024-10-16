@@ -4,9 +4,8 @@ go 1.22
 
 replace github.com/insomniacslk/dhcp => github.com/harvester/dhcp v0.0.0-20220421024905-28b38eafefe3
 
-replace golang.org/x/net => golang.org/x/net v0.17.0
-
 require (
+	github.com/Masterminds/sprig v2.22.0+incompatible
 	github.com/docker/cli v24.0.7+incompatible
 	github.com/docker/docker v25.0.6+incompatible
 	github.com/go-logr/logr v1.4.1
@@ -36,6 +35,7 @@ require (
 	github.com/BurntSushi/toml v1.0.0 // indirect
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
+	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/semver/v3 v3.2.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/Microsoft/go-winio v0.6.0 // indirect
