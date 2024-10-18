@@ -7,7 +7,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"html/template"
+	"text/template"
 )
 
 const (
@@ -30,10 +30,11 @@ func NewUbuntu20_04Installer(ctx context.Context, arch, bundleAddrs string) (*Ub
 		}
 		var tpl bytes.Buffer
 		if err = parser.Execute(&tpl, map[string]string{
-			"BundleAddrs":        bundleAddrs,
-			"Arch":               arch,
-			"ImgpkgVersion":      ImgpkgVersion,
-			"BundleDownloadPath": "{{.BundleDownloadPath}}",
+			"BundleAddrs":          bundleAddrs,
+			"Arch":                 arch,
+			"ImgpkgVersion":        ImgpkgVersion,
+			"BundleDownloadPath":   "{{.BundleDownloadPath}}",
+			"ContainerdConfigToml": GetConfigTomlEchoString(),
 		}); err != nil {
 			return "", fmt.Errorf("unable to apply install parsed template to the data object")
 		}
@@ -74,6 +75,7 @@ BUNDLE_ADDR={{.BundleAddrs}}
 IMGPKG_VERSION={{.ImgpkgVersion}}
 ARCH={{.Arch}}
 BUNDLE_PATH=$BUNDLE_DOWNLOAD_PATH/$BUNDLE_ADDR
+CONTAINERD_CONFIG_TOML='{{.ContainerdConfigToml}}'
 
 
 if ! command -v imgpkg >>/dev/null; then
@@ -120,6 +122,14 @@ done
 
 ## intalling containerd
 tar -C / -xvf "$BUNDLE_PATH/containerd.tar"
+
+## setup containerd config file
+if [ ! -e /etc/containerd/config.toml ]; then
+    mkdir -p /etc/containerd
+    echo "$CONTAINERD_CONFIG_TOML" > /etc/containerd/config.toml
+    chmod 755 /etc/containerd && chmod 644 /etc/containerd/config.toml
+fi
+
 
 ## starting containerd service
 systemctl daemon-reload && systemctl enable containerd && systemctl start containerd`

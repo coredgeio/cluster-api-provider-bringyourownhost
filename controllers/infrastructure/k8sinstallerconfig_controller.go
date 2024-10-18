@@ -9,8 +9,8 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
-	infrav1 "github.com/vmware-tanzu/cluster-api-provider-bringyourownhost/apis/infrastructure/v1beta1"
-	"github.com/vmware-tanzu/cluster-api-provider-bringyourownhost/installer"
+	infrav1 "github.com/coredgeio/cluster-api-provider-bringyourownhost/apis/infrastructure/v1beta1"
+	"github.com/coredgeio/cluster-api-provider-bringyourownhost/installer"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,7 +28,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
 // K8sInstallerConfigReconciler reconciles a K8sInstallerConfig object
@@ -171,7 +170,7 @@ func (r *K8sInstallerConfigReconciler) storeInstallationData(ctx context.Context
 
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      scope.Config.Name,
+			Name:      scope.Config.Name + "-k8sinstallerconfig",
 			Namespace: scope.Config.Namespace,
 			Labels: map[string]string{
 				clusterv1.ClusterNameLabel: scope.Cluster.Name,
@@ -219,7 +218,7 @@ func (r *K8sInstallerConfigReconciler) SetupWithManager(mgr ctrl.Manager) error 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&infrav1.K8sInstallerConfig{}).
 		Watches(
-			&source.Kind{Type: &infrav1.ByoMachine{}},
+			&infrav1.ByoMachine{},
 			handler.EnqueueRequestsFromMapFunc(r.ByoMachineToK8sInstallerConfigMapFunc),
 		).
 		Complete(r)
@@ -227,8 +226,7 @@ func (r *K8sInstallerConfigReconciler) SetupWithManager(mgr ctrl.Manager) error 
 
 // ByoMachineToK8sInstallerConfigMapFunc is a handler.ToRequestsFunc to be used to enqeue
 // request for reconciliation of K8sInstallerConfig.
-func (r *K8sInstallerConfigReconciler) ByoMachineToK8sInstallerConfigMapFunc(o client.Object) []ctrl.Request {
-	ctx := context.TODO()
+func (r *K8sInstallerConfigReconciler) ByoMachineToK8sInstallerConfigMapFunc(ctx context.Context, o client.Object) []ctrl.Request {
 	logger := log.FromContext(ctx)
 
 	m, ok := o.(*infrav1.ByoMachine)

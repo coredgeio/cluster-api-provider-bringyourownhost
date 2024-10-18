@@ -118,6 +118,8 @@ func GetSupportedRegistry() registry {
 		reg.AddBundleInstaller(linuxDistro, "v1.24.*")
 		reg.AddBundleInstaller(linuxDistro, "v1.25.*")
 		reg.AddBundleInstaller(linuxDistro, "v1.26.*")
+		reg.AddBundleInstaller(linuxDistro, "v1.27.*")
+		reg.AddBundleInstaller(linuxDistro, "v1.28.*")
 
 		/*
 		 * PLACEHOLDER - ADD MORE K8S VERSIONS HERE
@@ -127,9 +129,12 @@ func GetSupportedRegistry() registry {
 		reg.AddK8sFilter("v1.24.*")
 		reg.AddK8sFilter("v1.25.*")
 		reg.AddK8sFilter("v1.26.*")
+		reg.AddK8sFilter("v1.27.*")
+		reg.AddK8sFilter("v1.28.*")
 
 		// Match concrete os version to repository os version
 		reg.AddOsFilter("Ubuntu_20.04.*_x86-64", linuxDistro)
+		reg.AddOsFilter("Ubuntu_22.04.*_x86-64", linuxDistro)
 
 		/*
 		 * PLACEHOLDER - POINT MORE DISTRO VERSIONS

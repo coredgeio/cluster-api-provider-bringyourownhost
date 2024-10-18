@@ -20,10 +20,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
-	infrastructurev1beta1 "github.com/vmware-tanzu/cluster-api-provider-bringyourownhost/apis/infrastructure/v1beta1"
-	controllers "github.com/vmware-tanzu/cluster-api-provider-bringyourownhost/controllers/infrastructure"
-	"github.com/vmware-tanzu/cluster-api-provider-bringyourownhost/test/builder"
+	infrastructurev1beta1 "github.com/coredgeio/cluster-api-provider-bringyourownhost/apis/infrastructure/v1beta1"
+	controllers "github.com/coredgeio/cluster-api-provider-bringyourownhost/controllers/infrastructure"
+	"github.com/coredgeio/cluster-api-provider-bringyourownhost/test/builder"
 
 	//+kubebuilder:scaffold:imports
 
@@ -103,8 +104,8 @@ var _ = BeforeSuite(func() {
 	//+kubebuilder:scaffold:scheme
 
 	k8sManager, err = ctrl.NewManager(cfg, ctrl.Options{
-		Scheme:             scheme.Scheme,
-		MetricsBindAddress: ":6080",
+		Scheme:  scheme.Scheme,
+		Metrics: metricsserver.Options{BindAddress: ":6080"},
 	})
 	Expect(err).NotTo(HaveOccurred())
 
