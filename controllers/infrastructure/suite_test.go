@@ -127,7 +127,7 @@ var _ = BeforeSuite(func() {
 	recorder = record.NewFakeRecorder(32)
 	reconciler = &controllers.ByoMachineReconciler{
 		Client:   k8sManager.GetClient(),
-		Tracker:  remote.NewTestClusterCacheTracker(logr.New(logf.NullLogSink{}), clientFake, scheme.Scheme, client.ObjectKey{Name: capiCluster.Name, Namespace: capiCluster.Namespace}),
+		Tracker:  remote.NewTestClusterCacheTracker(logr.New(logf.NullLogSink{}), clientFake, k8sManager.GetClient(), scheme.Scheme, client.ObjectKey{Name: capiCluster.Name, Namespace: capiCluster.Namespace}),
 		Recorder: recorder,
 	}
 	err = reconciler.SetupWithManager(context.TODO(), k8sManager)

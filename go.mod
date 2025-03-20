@@ -6,7 +6,7 @@ replace github.com/insomniacslk/dhcp => github.com/harvester/dhcp v0.0.0-2022042
 
 require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
-	github.com/docker/cli v24.0.7+incompatible
+	github.com/docker/cli v25.0.6+incompatible
 	github.com/docker/docker v25.0.6+incompatible
 	github.com/go-logr/logr v1.4.1
 	github.com/jackpal/gateway v1.0.7
