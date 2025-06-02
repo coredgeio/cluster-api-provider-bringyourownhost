@@ -1,6 +1,3 @@
-// Copyright 2022 VMware, Inc. All Rights Reserved.
-// SPDX-License-Identifier: Apache-2.0
-
 package algo
 
 import (
@@ -10,14 +7,14 @@ import (
 	"text/template"
 )
 
-// Ubuntu20_04Installer represent the installer implementation for ubunto20.04.* os distribution
-type Ubuntu20_04Installer struct {
+// Rhel9_6Installer represent the installer implementation for rhel 9.6 os distribution
+type Rhel9_6Installer struct {
 	install   string
 	uninstall string
 }
 
-// NewUbuntu20_04Installer will return new Ubuntu20_04Installer instance
-func NewUbuntu20_04Installer(ctx context.Context, arch, bundleAddrs string) (*Ubuntu20_04Installer, error) {
+// NewRhel9_6Installer will return new Rhel9_6Installer instance
+func NewRhel9_6Installer(ctx context.Context, arch, bundleAddrs string) (*Rhel9_6Installer, error) {
 	parseFn := func(script string) (string, error) {
 		parser, err := template.New("parser").Parse(script)
 		if err != nil {
@@ -36,33 +33,33 @@ func NewUbuntu20_04Installer(ctx context.Context, arch, bundleAddrs string) (*Ub
 		return tpl.String(), nil
 	}
 
-	install, err := parseFn(DoUbuntu20_4K8s1_22)
+	install, err := parseFn(DoRhel9_6K8s)
 	if err != nil {
 		return nil, err
 	}
-	uninstall, err := parseFn(UndoUbuntu20_4K8s1_22)
+	uninstall, err := parseFn(UndoRhel9_6K8s)
 	if err != nil {
 		return nil, err
 	}
-	return &Ubuntu20_04Installer{
+	return &Rhel9_6Installer{
 		install:   install,
 		uninstall: uninstall,
 	}, nil
 }
 
 // Install will return k8s install script
-func (s *Ubuntu20_04Installer) Install() string {
+func (s *Rhel9_6Installer) Install() string {
 	return s.install
 }
 
 // Uninstall will return k8s uninstall script
-func (s *Ubuntu20_04Installer) Uninstall() string {
+func (s *Rhel9_6Installer) Uninstall() string {
 	return s.uninstall
 }
 
 // contains the installation and uninstallation steps for the supported os and k8s
 var (
-	DoUbuntu20_4K8s1_22 = `
+	DoRhel9_6K8s = `
 set -euox pipefail
 
 BUNDLE_DOWNLOAD_PATH={{.BundleDownloadPath}}
@@ -72,7 +69,7 @@ ARCH={{.Arch}}
 BUNDLE_PATH=$BUNDLE_DOWNLOAD_PATH/$BUNDLE_ADDR
 CONTAINERD_CONFIG_TOML='{{.ContainerdConfigToml}}'
 
-
+# Install imgpkg if not available
 if ! command -v imgpkg >>/dev/null; then
 	echo "installing imgpkg"	
 	
@@ -87,8 +84,8 @@ if ! command -v imgpkg >>/dev/null; then
 	fi
 	
 	$dl_bin github.com/vmware-tanzu/carvel-imgpkg/releases/download/$IMGPKG_VERSION/imgpkg-linux-$ARCH > /tmp/imgpkg
-	mv /tmp/imgpkg /usr/local/bin/imgpkg
-	chmod +x /usr/local/bin/imgpkg
+	mv /tmp/imgpkg /usr/bin/imgpkg
+	chmod +x /usr/bin/imgpkg
 fi
 
 echo "downloading bundle"
@@ -99,9 +96,9 @@ imgpkg pull -i $BUNDLE_ADDR -o $BUNDLE_PATH
 ## disable swap
 swapoff -a && sed -ri '/\sswap\s/s/^#?/#/' /etc/fstab
 
-## disable firewall
-if command -v ufw >>/dev/null; then
-	ufw disable
+## Disable firewall
+if systemctl is-active firewalld &>/dev/null; then
+    systemctl disable --now firewalld
 fi
 
 ## load kernal modules
@@ -110,10 +107,13 @@ modprobe overlay && modprobe br_netfilter
 ## adding os configuration
 tar -C / -xvf "$BUNDLE_PATH/conf.tar" && sysctl --system 
 
-## installing deb packages
+## installing RPM packages
 for pkg in cri-tools kubernetes-cni kubectl kubelet kubeadm; do
-	dpkg --install "$BUNDLE_PATH/$pkg.deb" && apt-mark hold $pkg
+    dnf install -y "$BUNDLE_PATH/$pkg.rpm"
 done
+
+## prevent updates to kubelet/kubectl/kubeadm
+dnf mark install cri-tools kubernetes-cni kubectl kubelet kubeadm
 
 ## intalling containerd
 tar -C / -xvf "$BUNDLE_PATH/containerd.tar"
@@ -129,7 +129,7 @@ fi
 ## starting containerd service
 systemctl daemon-reload && systemctl enable containerd && systemctl start containerd`
 
-	UndoUbuntu20_4K8s1_22 = `
+	UndoRhel9_6K8s = `
 set -euox pipefail
 
 BUNDLE_DOWNLOAD_PATH={{.BundleDownloadPath}}
@@ -142,20 +142,23 @@ systemctl stop containerd && systemctl disable containerd && systemctl daemon-re
 ## removing containerd configurations and cni plugins
 rm -rf /opt/cni/ && rm -rf /opt/containerd/ &&  tar tf "$BUNDLE_PATH/containerd.tar" | xargs -n 1 echo '/' | sed 's/ //g'  | grep -e '[^/]$' | xargs rm -f
 
-## removing deb packages
+## removing RPM packages (Kubernetes components)
 for pkg in kubeadm kubelet kubectl kubernetes-cni cri-tools; do
-	dpkg --purge $pkg
+    if dnf list installed "$pkg" >/dev/null 2>&1; then
+        dnf remove -y "$pkg"
+    fi
 done
 
 ## removing os configuration
 tar tf "$BUNDLE_PATH/conf.tar" | xargs -n 1 echo '/' | sed 's/ //g' | grep -e "[^/]$" | xargs rm -f
 
-## remove kernal modules
+## unload kernal modules
 modprobe -rq overlay && modprobe -r br_netfilter
 
-## enable firewall
-if command -v ufw >>/dev/null; then
-	ufw enable
+## enable firewall if firewalld is available
+if systemctl is-enabled firewalld &>/dev/null; then
+	systemctl enable firewalld
+	systemctl start firewalld
 fi
 
 ## enable swap
