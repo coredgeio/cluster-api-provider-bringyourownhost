@@ -124,6 +124,18 @@ func GetSupportedRegistry() registry {
 		reg.AddBundleInstaller(linuxDistro, "v1.30.*")
 		reg.AddBundleInstaller(linuxDistro, "v1.31.*")
 
+		// Red Hat Enterprise Linux 9.* amd arch
+		rhelDistro := "Red_Hat_Enterprise_Linux_9_x86-64"
+		{
+			// Add k8s versions for this distro
+			reg.AddBundleInstaller(rhelDistro, "v1.29.*")
+			reg.AddBundleInstaller(rhelDistro, "v1.30.*")
+			reg.AddBundleInstaller(rhelDistro, "v1.31.*")
+
+			// Add os filter to match this distro for all minor versions.
+			reg.AddOsFilter("Red_Hat_Enterprise_Linux_9.*_x86-64", rhelDistro)
+		}
+
 		/*
 		 * PLACEHOLDER - ADD MORE K8S VERSIONS HERE
 		 */
