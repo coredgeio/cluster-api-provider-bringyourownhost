@@ -66,13 +66,13 @@ func NewInstaller(ctx context.Context, osDist, arch, k8sVersion string, download
 	osbundle := reg.ResolveOsToOsBundle(osArch)
 	addrs := downloader.GetBundleAddr(osbundle, k8sVersion)
 
-	// TODO: remove this switch block and refactor `registry` to return installer based on os
 	switch osbundle {
-	case "Ubuntu_20.04.1_x86-64":
+	case Ubuntu20_04_Bundle:
 		return algo.NewUbuntu20_04Installer(ctx, arch, addrs)
-	case "Red_Hat_Enterprise_Linux_9_x86-64":
+	case Rhel9_Bundle:
 		return algo.NewRhel9_6Installer(ctx, arch, addrs)
 	default:
-		return nil, ErrDetectOs
+		// This should never happen as we check for the supported OS above
+		return nil, ErrOsK8sNotSupported
 	}
 }

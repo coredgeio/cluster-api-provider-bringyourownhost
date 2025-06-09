@@ -8,6 +8,12 @@ import (
 	"regexp"
 )
 
+const (
+	// Bundle names in the repository
+	Ubuntu20_04_Bundle = "Ubuntu_20.04.1_x86-64"
+	Rhel9_Bundle       = "Red_Hat_Enterprise_Linux_9_x86-64"
+)
+
 type osk8sInstaller interface{}
 type k8sInstallerMap map[string]osk8sInstaller
 type osk8sInstallerMap map[string]k8sInstallerMap
@@ -114,26 +120,24 @@ func GetSupportedRegistry() registry {
 		// Ubuntu
 
 		// BYOH Bundle Repository. Associate bundle with installer
-		linuxDistro := "Ubuntu_20.04.1_x86-64"
-		reg.AddBundleInstaller(linuxDistro, "v1.24.*")
-		reg.AddBundleInstaller(linuxDistro, "v1.25.*")
-		reg.AddBundleInstaller(linuxDistro, "v1.26.*")
-		reg.AddBundleInstaller(linuxDistro, "v1.27.*")
-		reg.AddBundleInstaller(linuxDistro, "v1.28.*")
-		reg.AddBundleInstaller(linuxDistro, "v1.29.*")
-		reg.AddBundleInstaller(linuxDistro, "v1.30.*")
-		reg.AddBundleInstaller(linuxDistro, "v1.31.*")
+		reg.AddBundleInstaller(Ubuntu20_04_Bundle, "v1.24.*")
+		reg.AddBundleInstaller(Ubuntu20_04_Bundle, "v1.25.*")
+		reg.AddBundleInstaller(Ubuntu20_04_Bundle, "v1.26.*")
+		reg.AddBundleInstaller(Ubuntu20_04_Bundle, "v1.27.*")
+		reg.AddBundleInstaller(Ubuntu20_04_Bundle, "v1.28.*")
+		reg.AddBundleInstaller(Ubuntu20_04_Bundle, "v1.29.*")
+		reg.AddBundleInstaller(Ubuntu20_04_Bundle, "v1.30.*")
+		reg.AddBundleInstaller(Ubuntu20_04_Bundle, "v1.31.*")
 
 		// Red Hat Enterprise Linux 9.* amd arch
-		rhelDistro := "Red_Hat_Enterprise_Linux_9_x86-64"
 		{
 			// Add k8s versions for this distro
-			reg.AddBundleInstaller(rhelDistro, "v1.29.*")
-			reg.AddBundleInstaller(rhelDistro, "v1.30.*")
-			reg.AddBundleInstaller(rhelDistro, "v1.31.*")
+			reg.AddBundleInstaller(Rhel9_Bundle, "v1.29.*")
+			reg.AddBundleInstaller(Rhel9_Bundle, "v1.30.*")
+			reg.AddBundleInstaller(Rhel9_Bundle, "v1.31.*")
 
 			// Add os filter to match this distro for all minor versions.
-			reg.AddOsFilter("Red_Hat_Enterprise_Linux_9.*_x86-64", rhelDistro)
+			reg.AddOsFilter("Red_Hat_Enterprise_Linux_9.*_x86-64", Rhel9_Bundle)
 		}
 
 		/*
@@ -151,8 +155,8 @@ func GetSupportedRegistry() registry {
 		reg.AddK8sFilter("v1.31.*")
 
 		// Match concrete os version to repository os version
-		reg.AddOsFilter("Ubuntu_20.04.*_x86-64", linuxDistro)
-		reg.AddOsFilter("Ubuntu_22.04.*_x86-64", linuxDistro)
+		reg.AddOsFilter("Ubuntu_20.04.*_x86-64", Ubuntu20_04_Bundle)
+		reg.AddOsFilter("Ubuntu_22.04.*_x86-64", Ubuntu20_04_Bundle)
 
 		/*
 		 * PLACEHOLDER - POINT MORE DISTRO VERSIONS
